@@ -1,9 +1,8 @@
 package cwl
 
 import org.scalatest.{FlatSpec, Matchers}
-import wom.types._
-import JsUtil
 import wom.values._
+import collection.JavaConverters._
 
 class JsUtilSpec extends FlatSpec with Matchers {
 
@@ -11,11 +10,8 @@ class JsUtilSpec extends FlatSpec with Matchers {
 
   it should "eval" in {
     val values = Map(
-      "myName" -> WomMap(
-        WomMapType(WomBooleanType, WomArrayType(WomStringType)),
-        Map(WomBoolean(true) -> WomArray(WomArrayType(WomStringType), Seq(WomString("myValue"))))
-      )
-    )
+      "myName" -> Map(true ->  Array("myValue")).asJava.asInstanceOf[AnyRef]
+    ).asJava
 
     val expr = "myName[true][0] + 'Plus'"
 

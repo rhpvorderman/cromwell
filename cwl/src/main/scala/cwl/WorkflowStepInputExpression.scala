@@ -4,9 +4,11 @@ import wom.types._
 import wom.values._
 import wom.expression.IoFunctionSet
 import cats.syntax.validated._
+import cats.syntax.option._
 import cwl.WorkflowStepInput.InputSource
+import cwl.command.ParentName
 
-final case class WorkflowStepInputExpression(input: WorkflowStepInput, override val cwlExpressionType: WomType, graphInputs: Set[String]) extends CwlWomExpression {
+final case class WorkflowStepInputExpression(input: WorkflowStepInput, override val cwlExpressionType: WomType, graphInputs: Set[String])(implicit parentName: ParentName) extends CwlWomExpression {
 
   override def sourceString = input.toString
 

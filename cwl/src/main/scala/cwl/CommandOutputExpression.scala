@@ -1,19 +1,13 @@
 package cwl
 
 import common.validation.ErrorOr.ErrorOr
-import cwl.ParameterContext.{ECMAScriptSupportedPrimitives, JSMap}
-import shapeless.Coproduct
 import wom.expression.IoFunctionSet
 import wom.types._
 import wom.values.{WomArray, WomFile, WomGlobFile, WomMap, WomString, WomValue}
-import mouse.all._
 import cats.syntax.validated._
 import cats.syntax.either._
 
-import scala.concurrent.Await
 import common.validation.Validation._
-import cats.data.Validated._
-import ParameterContext.liftPrimitive
 import cats.data.NonEmptyList
 
 import scala.language.postfixOps
@@ -110,14 +104,15 @@ case class CommandOutputExpression(outputBinding: CommandOutputBinding,
    */
   override def evaluateFiles(inputs: Map[String, WomValue], ioFunctionSet: IoFunctionSet, coerceTo: WomType): ErrorOr[Set[WomFile]] ={
 
-    val pc = ParameterContext().addInputs(inputs)
+    ParameterContext().addInputs(inputs).
+      map(pc =>
+        for {
+          globValue <- outputBinding.glob.toList
+          path <- GlobEvaluator.globPaths(globValue, pc, ioFunctionSet).toList
+        } yield WomGlobFile(path): WomFile).
+      map(_.toSet).
+      toValidated
 
-    val files = for {
-      globValue <- outputBinding.glob.toList
-      path <- GlobEvaluator.globPaths(globValue, pc, ioFunctionSet).toList
-    } yield WomGlobFile(path): WomFile
-
-    files.toSet |> validNel
   }
 
   private def load64KiB(path: String, ioFunctionSet: IoFunctionSet): String = {

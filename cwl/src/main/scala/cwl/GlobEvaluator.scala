@@ -52,7 +52,7 @@ object GlobEvaluator {
             case WomArray(WomArrayType(WomStringType), values) => values.map(_.valueString)
             case womValue =>
               throw new RuntimeException(
-                s"Unexpected expression result: $womValue while evaluating expression '$ecmaScript' using inputs '${parameterContext.inputs}'")
+                s"Unexpected expression result: $womValue while evaluating expression '$ecmaScript' using inputs '${parameterContext.ecmaScriptInputs}'")
           }
         }
       }

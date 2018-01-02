@@ -2,7 +2,6 @@ package cwl
 
 import javax.script.{ScriptContext, SimpleScriptContext}
 
-import cwl.ParameterContext.JSMap
 import jdk.nashorn.api.scripting.{ClassFilter, NashornScriptEngineFactory, ScriptObjectMirror}
 import wom.types._
 import wom.values._
