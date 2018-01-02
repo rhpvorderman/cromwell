@@ -31,6 +31,7 @@ object JsUtil {
     * @return The result of the expression.
     */
   def eval(expr: String, javascriptValues: java.util.Map[String, AnyRef]): WomValue = {
+    println(s"evaluating $expr against $javascriptValues")
     val engine = ScriptEngineFactory.getScriptEngine(nashornStrictArgs, getNashornClassLoader, noJavaClassFilter)
 
     val bindings = engine.createBindings()
@@ -89,6 +90,7 @@ object JsUtil {
   }
 
   private def fromJavascript(value: AnyRef): WomValue = {
+    println(s" from javascript $value")
     def isWhole(d: Double) = (d == Math.floor(d)) && !java.lang.Double.isInfinite(d)
     value match {
       case null => WomOptionalValue(WomNothingType, None)

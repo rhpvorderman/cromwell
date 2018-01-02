@@ -41,6 +41,7 @@ case class ParameterContext(private val inputs: Map[String, AnyRef] = Map.empty,
       case (key, womValue) => (key.validNel[String]:ErrorOr[String], toJavascript(womValue)).tupled
     }
 
+
     x.map(lst => this.copy(inputs ++ lst.toMap)).toEither
   }
 
@@ -59,8 +60,8 @@ case class ParameterContext(private val inputs: Map[String, AnyRef] = Map.empty,
 
   def ecmaScriptValues:java.util.Map[String, AnyRef] =
     Map(
-      "inputs" -> inputs.asInstanceOf[AnyRef],
-      "runtime" -> runtime.asInstanceOf[AnyRef],
+      "inputs" -> inputs.asJava.asInstanceOf[AnyRef],
+      "runtime" -> runtime.asJava.asInstanceOf[AnyRef],
       "self" -> self.asInstanceOf[AnyRef]
     ).asJava
 
