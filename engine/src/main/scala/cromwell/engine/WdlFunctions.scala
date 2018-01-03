@@ -16,6 +16,6 @@ class WdlFunctions(val pathBuilders: List[PathBuilder]) extends ReadLikeFunction
 
   // Cromwell does not support writing files from the engine.
   override def writeFile(path: String, content: String): Future[WomSingleFile] = {
-    Future.failed(new Exception("Can't write files"))
+    Future.failed(new UnsupportedOperationException("Writing files from the engine is unsupported"))
   }
 }

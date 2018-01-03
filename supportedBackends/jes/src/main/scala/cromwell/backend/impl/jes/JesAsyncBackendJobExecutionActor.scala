@@ -230,11 +230,11 @@ class JesAsyncBackendJobExecutionActor(override val standardParams: StandardAsyn
 
     val outputs = womFileOutputs.distinct flatMap { womFile =>
       womFile match {
-        case _: WomSingleDirectory =>
-          // TODO: WOM: WOMFILE: Add support for directories.
-          throw new NotImplementedError("Directories are not supported yet.")
         case singleFile: WomSingleFile => List(generateJesSingleFileOutputs(singleFile))
         case globFile: WomGlobFile => generateJesGlobFileOutputs(globFile)
+        case unsupported: WomFile =>
+          // TODO: WOM: WOMFILE: Add support for directories.
+          throw new NotImplementedError(s"$unsupported is not supported yet.")
       }
     }
 
