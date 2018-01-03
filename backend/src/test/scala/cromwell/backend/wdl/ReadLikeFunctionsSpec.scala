@@ -111,5 +111,7 @@ class TestReadLikeFunctions(sizeResult: Try[Double]) extends IoFunctionSet {
 
   override def glob(pattern: String): Seq[String] = ???
 
+  override def listAllFilesUnderDirectory(dirPath: String): Seq[String] = ???
+
   override def size(params: Seq[Try[WomValue]]): Try[WomFloat] = sizeResult.map(WomFloat.apply)
 }

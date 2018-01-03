@@ -5,14 +5,14 @@ import common.validation.ErrorOr.ErrorOr
 import common.validation.Validation._
 import shapeless.Poly1
 import wom.executable.Executable.DelayedCoercionFunction
-import wom.types.{WomArrayType, WomSingleFileType, WomType}
+import wom.types._
 import wom.values._
 
 private [cwl] object CwlInputCoercion extends Poly1 {
   implicit def cwlFileToWomValue: Case.Aux[MyriadInputValuePrimitives, DelayedCoercionFunction] = at[MyriadInputValuePrimitives] {
     _.fold(CwlInputPrimitiveCoercion)
   }
-  
+
   implicit def inputArrayValueToWomValue: Case.Aux[Array[MyriadInputValuePrimitives], DelayedCoercionFunction] =
     at[Array[MyriadInputValuePrimitives]] { arrayValue =>
       womType: WomType => {
@@ -32,11 +32,26 @@ private [cwl] object CwlInputCoercion extends Poly1 {
 }
 
 private [cwl] object CwlInputPrimitiveCoercion extends Poly1 {
+  implicit def cwlFileOrDirectoryToWomValue: Case.Aux[FileOrDirectory, DelayedCoercionFunction] = {
+    at[FileOrDirectory] {
+      _.fold(CwlInputPrimitiveCoercion)
+    }
+  }
+
   implicit def cwlFileToWomValue: Case.Aux[File, DelayedCoercionFunction] = at[File] { cwlFile =>
     womType: WomType => {
       womType match {
-        case WomSingleFileType => cwlFile.asWomValue
+        case _: WomFileType => cwlFile.asWomValue
         case otherType => s"Input value is a File but the targeted input is a $otherType".invalidNel
+      }
+    }
+  }
+
+  implicit def cwlDirectoryToWomValue: Case.Aux[Directory, DelayedCoercionFunction] = at[Directory] { cwlDirectory =>
+    womType: WomType => {
+      womType match {
+        case _: WomFileType => cwlDirectory.asWomValue
+        case otherType => s"Input value is a Directory but the targeted input is a $otherType".invalidNel
       }
     }
   }

@@ -1,6 +1,6 @@
 package cromwell.backend.standard
 
-import cromwell.backend.io.GlobFunctions
+import cromwell.backend.io.{DirectoryFunctions, GlobFunctions}
 import cromwell.backend.wdl.{ReadLikeFunctions, WriteFunctions}
 import cromwell.core.CallContext
 import cromwell.core.path.{Path, PathBuilder}
@@ -20,7 +20,7 @@ case class DefaultStandardExpressionFunctionsParams(override val pathBuilders: L
 
 // TODO: Once we figure out premapping and postmapping, maybe we can standardize that behavior. Currently that's the most important feature that subclasses override.
 class StandardExpressionFunctions(val standardParams: StandardExpressionFunctionsParams)
-  extends GlobFunctions with ReadLikeFunctions with WriteFunctions {
+  extends GlobFunctions with DirectoryFunctions with ReadLikeFunctions with WriteFunctions {
 
   override val pathBuilders: List[PathBuilder] = standardParams.pathBuilders
 

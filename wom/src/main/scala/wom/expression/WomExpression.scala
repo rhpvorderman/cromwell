@@ -35,6 +35,7 @@ trait IoFunctionSet {
   def stdout(params: Seq[Try[WomValue]]): Try[WomSingleFile]
   def stderr(params: Seq[Try[WomValue]]): Try[WomSingleFile]
   def glob(pattern: String): Seq[String]
+  def listAllFilesUnderDirectory(dirPath: String): Seq[String]
   def size(params: Seq[Try[WomValue]]): Try[WomFloat]
 }
 

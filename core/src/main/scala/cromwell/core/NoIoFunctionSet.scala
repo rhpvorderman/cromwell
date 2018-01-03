@@ -23,5 +23,8 @@ case object NoIoFunctionSet extends IoFunctionSet {
 
   override def glob(pattern: String): Seq[String] = throw new NotImplementedError("glob is not available here")
 
+  override def listAllFilesUnderDirectory(dirPath: String): Seq[String] =
+    throw new NotImplementedError("listAllFilesUnderDirectory is not available here")
+
   override def size(params: Seq[Try[WomValue]]): Try[WomFloat] = Failure(new NotImplementedError("size is not available here"))
 }

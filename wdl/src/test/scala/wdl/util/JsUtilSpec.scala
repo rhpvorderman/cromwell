@@ -1,5 +1,6 @@
 package wdl.util
 
+import common.validation.Validation._
 import org.scalatest.{FlatSpec, Matchers}
 import wom.types._
 import wom.util.JsUtil
@@ -19,7 +20,7 @@ class JsUtilSpec extends FlatSpec with Matchers {
 
     val expr = "myName[true][0] + 'Plus'"
 
-    val result: WomValue = JsUtil.eval(expr, values)
+    val result: WomValue = JsUtil.eval(expr, values).toTry.get
 
     result should be(WomString("myValuePlus"))
   }

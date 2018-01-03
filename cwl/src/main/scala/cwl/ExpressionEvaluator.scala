@@ -1,12 +1,12 @@
 package cwl
 
+import cats.implicits._
+import common.validation.ErrorOr.ErrorOr
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.MatchesRegex
 import shapeless.Witness
 import wom.util.JsUtil
 import wom.values.WomValue
-
-import scala.util.{Failure, Try}
 
 // http://www.commonwl.org/v1.0/CommandLineTool.html#Expressions
 object ExpressionEvaluator {
@@ -22,15 +22,16 @@ object ExpressionEvaluator {
   type MatchesECMAFunction = MatchesRegex[ECMAScriptFunctionWitness.T]
 
 
-  def evalExpression(expression: ECMAScriptExpression, parameterContext: ParameterContext): Try[WomValue] = {
+  def evalExpression(expression: ECMAScriptExpression)(parameterContext: ParameterContext): ErrorOr[WomValue] = {
     val ECMAScriptExpressionRegex = ECMAScriptExpressionWitness.value.r
     expression.value match {
-      case ECMAScriptExpressionRegex(script) => Try(JsUtil.eval(script, paramValues(parameterContext)))
-      case _ => Failure(new RuntimeException(s"Expression was unable to be matched to Regex. This is never supposed to happen thanks to our JSON parsing library"))
+      case ECMAScriptExpressionRegex(script) => eval(script, parameterContext)
+      case unmatched =>
+        s"Expression '$unmatched' was unable to be matched to regex '${ECMAScriptExpressionWitness.value}'".invalidNel
     }
   }
 
-  def evalFunction(function: ECMAScriptFunction, parameterContext: ParameterContext): Try[WomValue] = {
+  def evalFunction(function: ECMAScriptFunction)(parameterContext: ParameterContext): ErrorOr[WomValue] = {
     val ECMAScriptFunctionRegex = ECMAScriptFunctionWitness.value.r
     function.value match {
       case ECMAScriptFunctionRegex(script) =>
@@ -39,17 +40,30 @@ object ExpressionEvaluator {
               |FUNCTION_BODY
               |})();
               |""".stripMargin.replaceAll("FUNCTION_BODY", script)
-
-        Try(JsUtil.eval(functionExpression, paramValues(parameterContext)))
-      case _ => Failure(new RuntimeException(s"Expression was unable to be matched to Regex. This is never supposed to happen thanks to our JSON parsing library"))
+        eval(functionExpression, parameterContext)
+      case unmatched =>
+        s"Expression '$unmatched' was unable to be matched to regex '${ECMAScriptFunctionWitness.value}'".invalidNel
     }
   }
 
-  def paramValues(parameterContext: ParameterContext) =
-    Map(
-      "inputs" -> parameterContext.inputs,
-      "runtime" -> parameterContext.runtime,
-      "self" -> parameterContext.self
+  private lazy val cwlJsEncoder = new CwlJsEncoder()
+  private lazy val cwlJsDecoder = new CwlJsDecoder()
+
+  def eval(expr: String, parameterContext: ParameterContext): ErrorOr[WomValue] = {
+    val (rawValues, mapValues) = paramValues(parameterContext)
+    JsUtil.evalStructish(expr, rawValues, mapValues, cwlJsEncoder, cwlJsDecoder)
+  }
+
+  def paramValues(parameterContext: ParameterContext): (Map[String, WomValue], Map[String, Map[String, WomValue]]) = {
+    (
+      Map(
+        "self" -> parameterContext.self
+      ),
+      Map(
+        "inputs" -> parameterContext.inputs,
+        "runtime" -> parameterContext.runtime
+      )
     )
+  }
 
 }
