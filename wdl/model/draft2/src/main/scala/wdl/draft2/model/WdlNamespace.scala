@@ -192,7 +192,23 @@ object WdlNamespace {
     // Translates all import statements to sub-namespaces
     val namespaces: Seq[WdlNamespace] = for {
       imp <- imports
-      source = tryResolve(imp.uri, importResolvers, List.empty)
+      importUri = {
+        // TODO: Implement check config here
+        // Only activate below code if config is set to some value
+        // otherwise return imp.uri
+        // TODO: Implement checking whether a proper uri starting with http:// https:// or file:// was used
+        // In all other cases:
+        // check if path is absolute.
+        if (Paths.get(imp.uri).isAbsolute()) imp.uri
+        // else assume it is a relative path
+        else {
+          //Get parentDir of current workflow and use that as base for the import file.
+          val parentDir = Paths.get(uri).toAbsolutePath.getParent.toString
+          val importPath = Paths.get(imp.uri).toString
+          Paths.get(parentDir,importPath).toString
+          }
+        }
+      source = tryResolve(importUri, importResolvers, List.empty)
     } yield WdlNamespace.load(source, imp.uri, importResolvers, Option(imp.namespaceName), root = false).get
 
     // Map of Terminal -> WDL Source Code so the syntax error formatter can show line numbers
