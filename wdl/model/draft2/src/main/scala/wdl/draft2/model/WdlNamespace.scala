@@ -204,12 +204,8 @@ object WdlNamespace {
         else {
           //Get parentDir of current workflow and use that as base for the import file.
           val parentDir = Paths.get(uri).toAbsolutePath.getParent.toString
-          println(s"Parent Dir: $parentDir")
           val importPath = Paths.get(imp.uri).toString
-          println(s"importPath: $importPath")
           val totalPath = Paths.get(parentDir,importPath).toAbsolutePath.toString
-          println(s"total path: $totalPath")
-
           totalPath
           }
         }
