@@ -35,7 +35,7 @@ import scala.util.{Failure, Success, Try}
 sealed trait WdlNamespace extends WomValue with Scope {
   final val womType = WdlNamespaceType
   def ast: Ast
-  def resource = ast.findFirstTerminal.map(_.getResource).getOrElse("NONE")
+  def resource: FullyQualifiedName = ast.findFirstTerminal.map(_.getResource).getOrElse("NONE")
   def importedAs: Option[String] // Used when imported with `as`
   def imports: Seq[Import]
   def namespaces: Seq[WdlNamespace]
@@ -204,12 +204,17 @@ object WdlNamespace {
         else {
           //Get parentDir of current workflow and use that as base for the import file.
           val parentDir = Paths.get(uri).toAbsolutePath.getParent.toString
+          println(s"Parent Dir: $parentDir")
           val importPath = Paths.get(imp.uri).toString
-          Paths.get(parentDir,importPath).toString
+          println(s"importPath: $importPath")
+          val totalPath = Paths.get(parentDir,importPath).toAbsolutePath.toString
+          println(s"total path: $totalPath")
+
+          totalPath
           }
         }
       source = tryResolve(importUri, importResolvers, List.empty)
-    } yield WdlNamespace.load(source, imp.uri, importResolvers, Option(imp.namespaceName), root = false).get
+    } yield WdlNamespace.load(source, importUri, importResolvers, Option(imp.namespaceName), root = false).get
 
     // Map of Terminal -> WDL Source Code so the syntax error formatter can show line numbers
     val terminalMap = AstTools.terminalMap(ast, source)
