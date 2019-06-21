@@ -1,6 +1,7 @@
 package cromwell.backend.sfs
 
 import java.io.{FileNotFoundException, IOException}
+
 import akka.actor.ActorContext
 import akka.stream.ActorMaterializer
 import cats.instances.try_._
@@ -212,6 +213,7 @@ trait SharedFileSystem extends PathFactory {
 
   private def createStrategies(configStrategies: Seq[String], docker: Boolean): Seq[DuplicationStrategy] = {
     // If localizing for a docker job, remove soft-link as an option
+    // If no cachedCopyDir is defined, cached-copy can not be used and is removed.
     val filteredConfigStrategies = configStrategies filter {
       case "soft-link" if docker => false
       case "cached-copy" if cachedCopyDir.isEmpty => false

@@ -20,6 +20,10 @@ select max(CALL_CACHING_HASH_ENTRY_ID) from CALL_CACHING_HASH_ENTRY
 Cromwell now supports sending metrics to [Google's Stackdriver API](https://cloud.google.com/monitoring/api/v3/). 
 Learn more on how to configure [here](https://cromwell.readthedocs.io/en/stable/developers/Instrumentation/).
 
+### BigQuery in PAPI
+
+Cromwell now allows a user to specify BigQuery jobs when using the PAPIv2 backend
+
 ### Configuration Changes
 
 #### StatsD Instrumentation
@@ -27,6 +31,11 @@ Learn more on how to configure [here](https://cromwell.readthedocs.io/en/stable/
 There is a small change in StatsD's configuration path. Originally, the path to the config was `services.Instrumentation.config.statsd`
 which now has been updated to `services.Instrumentation.config`. More info on its configuration can be found
 [here](https://cromwell.readthedocs.io/en/stable/developers/Instrumentation/).
+
+#### cached-copy
+
+A new experimental feature, the `cached-copy` localization strategy is available for the shared filesystem. 
+More information can be found in the [documentation on localization](https://cromwell.readthedocs.io/en/stable/backends/HPC).
 
 ### API Changes
 
