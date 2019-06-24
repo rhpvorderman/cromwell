@@ -141,7 +141,7 @@ class SharedFileSystemSpec extends FlatSpec with Matchers with Mockito with Tabl
     dests.foreach(_.delete(swallowIOExceptions = true))
   }
 
-  it should "copy the file again when the copy-cached file has exceeded the maximum number of hardlinks" in {
+it should "copy the file again when the copy-cached file has exceeded the maximum number of hardlinks" in {
     val callDirs: List[Path] = List(1,2,3).map(x => DefaultPathBuilder.createTempDirectory("SharedFileSystem"))
     val orig = DefaultPathBuilder.createTempFile("inputFile")
     val dests = callDirs.map(_./(orig.parent.pathAsString.hashCode.toString())./(orig.name))

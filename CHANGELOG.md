@@ -2,6 +2,11 @@
 
 ## 43 Release Notes
 
+### Virtual Private Cloud with Subnetworks
+
+Cromwell now allows PAPIV2 jobs to run on a specific subnetwork inside a private network by adding the subnetwork key
+`subnetwork-label-key` inside `virtual-private-cloud` in backend configuration. More info [here](https://cromwell.readthedocs.io/en/stable/backends/Google/).
+
 ### Call caching database refactoring
 
 Cromwell's `CALL_CACHING_HASH_ENTRY` primary key has been refactored to use a `BIGINT` datatype in place of the previous
@@ -34,8 +39,14 @@ which now has been updated to `services.Instrumentation.config`. More info on it
 
 #### cached-copy
 
-A new experimental feature, the `cached-copy` localization strategy is available for the shared filesystem. 
+A new experimental feature, the `cached-copy` localization strategy is available for the shared filesystem.
 More information can be found in the [documentation on localization](https://cromwell.readthedocs.io/en/stable/backends/HPC).
+
+#### Yaml node limits
+
+Yaml parsing now checks for cycles, and limits the maximum number of parsed nodes to a configurable value. See
+[the documentation on configuring Yaml](https://cromwell.readthedocs.io/en/stable/Configuring/#yaml) for more
+information.
 
 ### API Changes
 
