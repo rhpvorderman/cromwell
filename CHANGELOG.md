@@ -13,7 +13,7 @@ https://cromwell.readthedocs.io/en/stable/Configuring/#call-caching).
 
 ### Bugfixes
 
-+ Fixed a bug in Cromwell 49 where the `use_relative_output_paths` option would not preserve intermediate folders.
++ Fixed a bug where the `use_relative_output_paths` option would not preserve intermediate folders.
 
 ## 49 Release Notes
 
