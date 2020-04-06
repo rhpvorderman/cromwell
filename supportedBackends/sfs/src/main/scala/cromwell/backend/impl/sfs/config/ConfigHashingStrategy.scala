@@ -109,10 +109,13 @@ final case class HashFileXxH64Strategy(checkSiblingMd5: Boolean) extends ConfigH
 final case class FingerprintStrategy(checkSiblingMd5: Boolean) extends ConfigHashingStrategy {
   override protected def hash(file: Path): Try[String] = {
     Try {
-      file.lastModifiedTime.toEpochMilli.toHexString +
-      file.size.toHexString +
-      // Only check first 10 MB for performance reasons
-      HashFileXxH64StrategyMethods.xxh64sum(file.newInputStream, maxSize = 10 * 1024 * 1024)
+      // Calculate the xxh64 hash of last modified time and filesize. These are NOT added, as it will lead to loss of
+      // information. Instead their hexstrings are concatenated and then hashed.
+      HashFileXxH64StrategyMethods.xxh64sumString(file.lastModifiedTime.toEpochMilli.toHexString +
+      file.size.toHexString) +
+      // Only check first 10 MB (10485760 bytes) for performance reasons. 100 MB will take to much time on network file
+      // systems. 1 MB might not be unique enough.
+      HashFileXxH64StrategyMethods.xxh64sum(file.newInputStream, maxSize = 10485760L)
       }
     }
   override val description = "fingerprint the file with last modified time, size and a xxh64 hash of the first 10 mb"
@@ -132,20 +135,33 @@ object HashFileXxH64StrategyMethods {
     */
   def xxh64sum(inputStream: InputStream,
                bufferSize: Int = defaultBufferSize,
-               maxSize: Long = Long.MaxValue): String = {
-    val hasher = xxhashFactory.newStreamingHash64(0)
+               maxSize: Long = Long.MaxValue,
+               seed: Long = 0L): String = {
+    val hasher = xxhashFactory.newStreamingHash64(seed)
     val buffer: Array[Byte] = new Array[Byte](bufferSize)
     var byteCounter: Long = 0
     try {
       while (inputStream.available() > 0 && byteCounter < maxSize) {
         val length: Int = inputStream.read(buffer)
         hasher.update(buffer, 0, length)
-        byteCounter += bufferSize
+        byteCounter += length
       }
     }
+    catch {case e: Exception => throw e
+           case t: Throwable => throw t}
     finally inputStream.close()
     // Long.toHexString does not add leading zero's
     f"%%16s".format(hasher.getValue.toHexString).replace(" ", "0")
+  }
+
+  // Only instantiate the xxh64hasher once
+  private lazy val xxh64hasher = xxhashFactory.hash64()
+
+  def xxh64sumString(string: String, seed: Long = 0L): String = {
+    val bytes: Array[Byte] = string.toCharArray.map(_.toByte)
+    val hash = xxh64hasher.hash(bytes, 0, bytes.length, seed)
+    // Long.toHexString does not add leading zero's
+    f"%%16s".format(hash.toHexString).replace(" ", "0")
   }
 }
 
