@@ -14,6 +14,8 @@ https://cromwell.readthedocs.io/en/stable/Configuring/#call-caching).
 ### Bugfixes
 
 + Fixed a bug where the `use_relative_output_paths` option would not preserve intermediate folders.
+* Fixed a bug where the `size(...)` function did not work correctly on files from the input section
+  of a task that had a relative path.
 
 ## 49 Release Notes
 
